@@ -23,6 +23,9 @@ public class UsersService {
 		// Durante una save solitamente può anche essere necessario dover aggiungere ulteriori dati "Server Generated"
 
 		// 1. Controllo se esiste già un utente con questa email
+		if (usersRepository.existsByEmail(newUser.getEmail())) {
+			throw new RuntimeException("L'email " + newUser.getEmail() + " è già in uso!");
+		}
 		// 2. Effetto ulteriori controlli per validare i campi del nuovo utente
 		if (newUser.getName().length() < 2) throw new RuntimeException("Il nome non può essere più corto di 2 caratteri");
 
@@ -74,5 +77,29 @@ public class UsersService {
 
 	public long count() {
 		return usersRepository.count();
+	}
+
+	public List<User> filterBySurname(String surname) {
+		return usersRepository.findBySurname(surname);
+	}
+
+	public List<User> filterByNameSurname(String name, String surname) {
+		return usersRepository.findByNameAndSurname(name, surname);
+	}
+
+	public List<User> filterByNameStartsWith(String partialName) {
+		return usersRepository.findByNameStartingWithIgnoreCase(partialName);
+	}
+
+	public List<User> filterByListOfNames(List<String> names) {
+		return usersRepository.findByNameIn(names);
+	}
+
+	public List<User> filterByAgeLessThan(int age) {
+		return usersRepository.findByAgeLessThan(age);
+	}
+
+	public User findOneByAgeGreaterThan(int age) {
+		return usersRepository.findFirstByAgeGreaterThan(age).orElseThrow(() -> new RuntimeException("Non trovato"));
 	}
 }
