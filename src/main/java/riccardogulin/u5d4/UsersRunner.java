@@ -26,10 +26,17 @@ public class UsersRunner implements CommandLineRunner {
 		User newUser = new User(faker.lordOfTheRings().character(), faker.name().lastName(), faker.internet().emailAddress(), rndm.nextInt(0, 100));
 
 		usersService.saveUser(newUser);
-/*
-		usersRepository.save(newUser);
 
-		usersRepository.findAll().stream().forEach(System.out::println);*/
+		usersService.findAll().forEach(System.out::println);
+
+		try {
+
+			usersService.findByIdAndUpdate(3, new User("Giovanni", "Storti", "aldo@baglio.it", 20));
+		} catch (Exception ex) {
+			System.err.println(ex.getMessage());
+		}
+
+		System.out.println("Numero utenti nel db " + usersService.count());
 
 
 	}

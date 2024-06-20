@@ -4,7 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import riccardogulin.u5d4.entities.User;
+import riccardogulin.u5d4.exceptions.ItemNotFoundException;
 import riccardogulin.u5d4.repositories.UsersRepository;
+
+import java.util.List;
 
 @Service // Specializzazione di @Component
 // Il service è una classe che ci consente di poter aggiungere della logica personalizzata ulteriore durante le varie
@@ -31,5 +34,45 @@ public class UsersService {
 
 		// 5. Log di avvenuto salvataggio
 		log.info("Nuovo utente " + newUser.getEmail() + " salvato correttamente");
+	}
+
+	public List<User> findAll() {
+		return usersRepository.findAll();
+	}
+
+	public User findById(long userId) {
+/*		Optional<User> foundOrNot = usersRepository.findById(userId);
+		if (foundOrNot.isPresent()) {
+			return foundOrNot.get();
+			// Qua dopo aver verificato che lo user sia stato trovato, con il .get posso "convertire" l'Optional in User
+		} else {
+			// Se lo user non è stato trovato invece, lanciamo un'eccezione Not Found
+			throw new ItemNotFoundException(userId);
+		}*/
+		return usersRepository.findById(userId).orElseThrow(() -> new ItemNotFoundException(userId)); // Alternativa molto più compatta al codice commentato sopra
+	}
+
+	public void findByIdAndDelete(long userId) {
+		User found = this.findById(userId);
+		usersRepository.delete(found);
+		log.info("Utente con id " + userId + " eliminato correttamente");
+	}
+
+	public void findByIdAndUpdate(long userId, User updatedUser) {
+		// 1. Cerco l'utente tramite id
+		User found = this.findById(userId);
+		// 2. Aggiorno campo per campo i dati dell'utente del db con quelli passati come parametro a questo metodo
+		found.setName(updatedUser.getName());
+		found.setSurname(updatedUser.getSurname());
+		found.setAge(updatedUser.getAge());
+		found.setEmail(updatedUser.getEmail());
+		// 3. Risalvo lo user così modificato
+		usersRepository.save(found);
+		// 4. Log
+		log.info("Utente con id " + userId + " modificato correttamente");
+	}
+
+	public long count() {
+		return usersRepository.count();
 	}
 }
